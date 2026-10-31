@@ -8,7 +8,7 @@
 
 1. 首次配置 Google 登录：在 Google Cloud 项目中启用 Gmail API，配置 OAuth 同意屏幕（External 测试模式时，将所有要使用的邮箱加入测试用户），创建 **Desktop app / 桌面应用** OAuth 客户端并下载 JSON。在后台“Google 登录配置”中导入。不要使用 Web application 客户端。配置保存到 Git 忽略的 `../data/giftcard-oauth-client.json`，仅包含应用客户端信息。Google Cloud：https://console.cloud.google.com/auth/clients 。
 2. 点击 **使用 Google 登录**，浏览器跳转到 Google 官方页面，选择邮箱并授权 Gmail 只读权限。无需应用专用密码。邮箱字段是可选的登录提示，以 Google 实际授权的邮箱为准。支持保存多个邮箱地址、选择后通过 Google 切换账号。切换成功清空上一邮箱的结果，失败或取消保留原连接。地址存本机浏览器；access/refresh token 只保存在后台内存，重启后重新登录。断开连接清除本地 token，不会撤销 Google 账户已授予的权限；如需撤销，前往 https://myaccount.google.com/connections 。
-3. Filter 默认是“标题包含完整短语”：输入 `Chen sent you` 会自动转换为 `subject:"Chen sent you"`，保持词序，不将输入拆成多个词。标题可以有前后缀，例如 `Fwd: Chen sent you an Apple Gift Card.`。可切换到“整封邮件包含完整短语”（标题/正文等 Gmail 可搜索内容），或“高级 Gmail 搜索”自行填写 `from:someone@gmail.com subject:"Gift Card"` 等表达式。页面同时显示将提交的搜索条件和当前结果对应的条件。Gmail 引号搜索不是逐字符、区分大小写的整个标题相等比较。刷新页面会恢复已有关键词；含搜索语法的旧条件恢复为高级模式，普通关键词采用新的默认模式。旧结果始终显示原查询，条件改变后需重新搜索。搜索不含垃圾邮件与回收站，按 Gmail API 返回顺序处理。
+3. Filter 默认是“标题短语 / 自动识别邮箱”：直接输入完整邮箱（如 `sender@example.com`）会按发件人搜索，生成 `from:"sender@example.com"`；也可选择“发件人地址”模式。输入 `Chen sent you` 会自动转换为 `subject:"Chen sent you"`，保持词序，不将输入拆成多个词。标题可以有前后缀，例如 `Fwd: Chen sent you an Apple Gift Card.`。可切换到“整封邮件包含完整短语”（标题/正文等 Gmail 可搜索内容），或“高级 Gmail 搜索”自行填写 `from:someone@gmail.com subject:"Gift Card"` 等表达式。页面同时显示将提交的搜索条件和当前结果对应的条件。Gmail 引号搜索不是逐字符、区分大小写的整个标题相等比较。刷新页面会恢复已有关键词；含搜索语法的旧条件恢复为高级模式，普通关键词采用新的默认模式。旧结果始终显示原查询，条件改变后需重新搜索。搜索不含垃圾邮件与回收站，按 Gmail API 返回顺序处理。
 4. 选择每批 10 / 25 / 50 / 100 封，点击“提取下一批”。100 是邮件数，一封邮件的多个 PIN 各显示一行。处理中可点击“暂停”：当前邮件读取完成后暂停，保留进度与结果；点击“继续提取”接着处理剩余邮件。暂停时可导出已提取结果；切换邮箱或重新搜索需等待本批完成。反复点击直到本轮处理完成。重新搜索才会包含搜索后新收到的邮件。
 5. 切换结果分类、每页条数、上一页/下一页；显示完整 PIN 或复制。修改 Filter 后必须重新搜索才能继续提取，避免误混结果。
 6. 导出真正的 `.xlsx` 文件，包含本轮已经处理的所有结果（不受表格当前页或分类限制），包括 PIN、状态、主题、发件人、日期、邮件 ID、失败原因。所有单元格为文本，保留开头的零、避免公式执行。
@@ -30,3 +30,5 @@
 Google 官方说明：https://developers.google.com/identity/protocols/oauth2/native-app 。使用授权码流程、PKCE S256、10 分钟有效且一次性校验的 state、本机回调；仅申请 `gmail.readonly`。测试模式/Workspace 管理策略可能限制可授权的邮箱；对外发布应按 Google 要求处理应用验证。
 
 搜索构造验证：`node test_search.cjs`。
+
+时间段筛选：可填写开始日期、结束日期或其中一项，也可不填关键词只按日期搜索。包含起止当天，按浏览器所在电脑时区换算为 Gmail 的秒级时间条件（避免日期字符串被按 PST 解释）。更改日期后需重新搜索；刷新同一标签页会恢复当前结果对应的筛选条件。
