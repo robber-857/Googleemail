@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+data/
+output/
+.env
+.env.*
+*.xlsx
+*oauth-client*.json
+client_secret*.json
+credentials*.json

@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const {compileFilter} = require('./web/app.js');
+assert.equal(compileFilter('Chen sent you'), 'subject:"Chen sent you"');
+assert.equal(compileFilter(' Chen sent you ', 'all_phrase'), '"Chen sent you"');
+assert.equal(compileFilter('"Chen sent you"'), 'subject:"Chen sent you"');
+assert.equal(compileFilter('from:sender@example.com subject:"Card"','advanced'), 'from:sender@example.com subject:"Card"');
+assert.equal(compileFilter('礼品卡 已发送'), 'subject:"礼品卡 已发送"');
+assert.equal(compileFilter('from:someone'), 'subject:"from:someone"');
+assert.throws(()=>compileFilter(''));
+assert.throws(()=>compileFilter('Chen " sent you'));
+assert.throws(()=>compileFilter('Chen\nsent'));
+assert.throws(()=>compileFilter('Chen\\sent'));
+console.log('PASS: phrase modes, quoted input, advanced syntax, Unicode and invalid input');
